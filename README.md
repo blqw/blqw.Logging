@@ -1,11 +1,34 @@
-# ±êÌâ
-¼ò½é
+ï»¿# blqw.Logging
+æ—¥å¿—æ¡†æ¶(`Microsoft.Extensions.Logging`)æ‹“å±•åŠŸèƒ½
 
 ## Demo
 ```
-hello world
+using blqw.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+
+namespace Demo
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var log = new ServiceCollection()
+                .AddLogging(x => x.SetMinimumLevel(0))
+                .BuildServiceProvider()
+                .AddConsoleLogger()
+                .TraceListenerToLogger()
+                .GetLogger<Program>();
+            log.Debug("xxxxx");
+            Trace.WriteLine("yyyyy");
+        }
+    }
+}
 ```
 
-## ¸üĞÂËµÃ÷ 
-#### [1.0.0.0] 2018.04.17
-* ¸üĞÂËµÃ÷
+> 2018-08-27 15:38:41.940 ã€Debugã€‘ xxxxx (Program.Main:18)  
+> 2018-08-27 15:38:42.139 ã€Traceã€‘ yyyyy (System.Diagnostics.TraceListener)  
+## æ›´æ–°è¯´æ˜ 
+#### [1.0.0] 2018.08.27
+* æ›´æ–°è¯´æ˜

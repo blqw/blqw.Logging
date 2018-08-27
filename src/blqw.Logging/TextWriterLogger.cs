@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.ComponentModel.Design;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 
@@ -49,16 +46,6 @@ namespace blqw.Logging
             }
             ThrowIfDisposed();
             var e = GetString(eventId);
-            if (state is ILogFormattable formattable)
-            {
-                var s = formattable.Log(this, logLevel, eventId, state, exception, formatter);
-                if (s != null)
-                {
-                    Writer.WriteLine(s);
-                    Writer.Flush();
-                    return;
-                }
-            }
             if (formatter != null)
             {
                 Writer.WriteLine($"{Time} {GetString(logLevel)}{GetIndent()} {formatter(state, exception)}{e}");
@@ -91,7 +78,7 @@ namespace blqw.Logging
         public virtual IDisposable BeginScope<TState>(TState state)
         {
             ThrowIfDisposed();
-            Writer.WriteLine((state as ILogFormattable)?.BeginScope(this, state) ?? $"{Time} {SCOPE_BEGIN}{GetIndent()}┏  {GetString(state)}");
+            Writer.WriteLine($"{Time} {SCOPE_BEGIN}{GetIndent()}┏  {GetString(state)}");
             var indent = _indent;
             Interlocked.Increment(ref _indent);
             Writer.Flush();
@@ -101,7 +88,7 @@ namespace blqw.Logging
         private void Unindent<TState>(int indent, TState state)
         {
             Interlocked.CompareExchange(ref _indent, indent, indent + 1);
-            Writer?.WriteLine((state as ILogFormattable)?.EndScope(this, state) ?? $"{Time} {SCOPE_END}{GetIndent()}┗━━━ ");
+            Writer?.WriteLine($"{Time} {SCOPE_END}{GetIndent()}┗━━━ ");
             Writer?.Flush();
         }
 
@@ -211,7 +198,7 @@ namespace blqw.Logging
             public int Indent { get; }
 
             // 取消缩进
-            public void Dispose() => _logger.Unindent(Indent, state);
+            public void Dispose() => _logger.Unindent(Indent, _state);
         }
 
         /// <summary>

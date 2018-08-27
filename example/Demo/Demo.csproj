@@ -89,5 +89,11 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\blqw.Logging\blqw.Logging.csproj">
+      <Project>{b7645d80-7d59-4531-ac1b-1747a8f9a86c}</Project>
+      <Name>blqw.Logging</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

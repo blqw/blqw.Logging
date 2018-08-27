@@ -3,11 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "blqw.Logging", "src\blqw.Logging\blqw.Logging.csproj", "{B7645D80-7D59-4531-AC1B-1747A8F9A86C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blqw.Logging", "src\blqw.Logging\blqw.Logging.csproj", "{B7645D80-7D59-4531-AC1B-1747A8F9A86C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "example\Demo\Demo.csproj", "{6F4F109B-D2B2-4D10-857B-7BB7DA1CD465}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{8335901F-498F-48DB-A2E9-E0C5D8F96C68}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{229A1601-0420-43E9-89F9-F86CAF1A18E9}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
