@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace blqw.Logging
 {
@@ -33,6 +34,78 @@ namespace blqw.Logging
 
         private static ILogger DefaultLogger { get; } = new ConsoleLogger(null);
 
+        private static string DefaultFormatter(object state, Exception exception)
+        {
+            var formatter = GetFormatter(state?.GetType());
+            if (formatter != null)
+            {
+                return formatter(state, exception);
+            }
+            var message = GetStateString(state);
+            if (exception == null)
+            {
+                return message;
+            }
+            using (StringBuffer.Pop(out var builder))
+            {
+                builder.Append(message);
+                WriteExceptionString(builder, exception);
+                return builder.ToString();
+            }
+        }
+
+        private static string GetStateString(object state)
+        {
+            if (state == null)
+            {
+                return "<null>";
+            }
+
+            switch (state)
+            {
+                case IFormattable b:
+                    return b.ToString(null, null);
+                case IConvertible c:
+                    return c.ToString(null);
+                default:
+                    return $"{state.ToString()}({state.GetType()})";
+            }
+        }
+
+        private static void WriteExceptionString(StringBuilder builder, Exception exception)
+        {
+            if (exception == null)
+            {
+                return;
+            }
+
+            //循环输出异常
+            while (exception != null)
+            {
+                builder.AppendLine();
+                builder.AppendLine($"{exception.ToString()}");
+                // 获取基础异常
+                var ex = exception.GetBaseException();
+                // 基础异常获取失败则获取 内部异常
+                if (ex == null || ex == exception)
+                {
+                    // 预防出现一些极端例子导致死循环
+                    if (ex == exception.InnerException)
+                    {
+                        return;
+                    }
+                    ex = exception.InnerException;
+                }
+                exception = ex;
+            }
+        }
+
+        private static Func<object, Exception, string> GetFormatter(Type type)
+        {
+            return null;
+        }
+
+
         /// <summary>
         /// 标准日志输出
         /// </summary>
@@ -41,7 +114,7 @@ namespace blqw.Logging
                                 [CallerMemberName] string memberName = "",
                                 [CallerFilePath] string sourceFilePath = "",
                                 [CallerLineNumber] int sourceLineNumber = 0)
-                => (logger ?? DefaultLogger).Log(logLevel, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, null);
+                => (logger ?? DefaultLogger).Log(logLevel, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, DefaultFormatter);
 
         /// <summary>
         /// 错误日志输出
@@ -51,7 +124,7 @@ namespace blqw.Logging
                                 [CallerMemberName] string memberName = "",
                                 [CallerFilePath] string sourceFilePath = "",
                                 [CallerLineNumber] int sourceLineNumber = 0)
-                => (logger ?? DefaultLogger).Log(LogLevel.Error, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, null);
+                => (logger ?? DefaultLogger).Log(LogLevel.Error, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, DefaultFormatter);
 
         /// <summary>
         /// 严重错误日志输出
@@ -61,7 +134,7 @@ namespace blqw.Logging
                                 [CallerMemberName] string memberName = "",
                                 [CallerFilePath] string sourceFilePath = "",
                                 [CallerLineNumber] int sourceLineNumber = 0)
-                => (logger ?? DefaultLogger).Log(LogLevel.Critical, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, null);
+                => (logger ?? DefaultLogger).Log(LogLevel.Critical, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, DefaultFormatter);
 
         /// <summary>
         /// 标准日志输出
@@ -71,7 +144,7 @@ namespace blqw.Logging
                                 [CallerMemberName] string memberName = "",
                                 [CallerFilePath] string sourceFilePath = "",
                                 [CallerLineNumber] int sourceLineNumber = 0)
-                => (logger ?? DefaultLogger).Log(LogLevel.Trace, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, null);
+                => (logger ?? DefaultLogger).Log(LogLevel.Trace, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, DefaultFormatter);
 
         /// <summary>
         /// 调试日志输出
@@ -81,7 +154,7 @@ namespace blqw.Logging
                                 [CallerMemberName] string memberName = "",
                                 [CallerFilePath] string sourceFilePath = "",
                                 [CallerLineNumber] int sourceLineNumber = 0)
-                => (logger ?? DefaultLogger).Log(LogLevel.Debug, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, null);
+                => (logger ?? DefaultLogger).Log(LogLevel.Debug, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, DefaultFormatter);
 
         /// <summary>
         /// 普通信息日志输出
@@ -91,7 +164,7 @@ namespace blqw.Logging
                                 [CallerMemberName] string memberName = "",
                                 [CallerFilePath] string sourceFilePath = "",
                                 [CallerLineNumber] int sourceLineNumber = 0)
-                => (logger ?? DefaultLogger).Log(LogLevel.Information, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, null);
+                => (logger ?? DefaultLogger).Log(LogLevel.Information, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, DefaultFormatter);
 
         /// <summary>
         /// 警告日志输出
@@ -101,7 +174,7 @@ namespace blqw.Logging
                                 [CallerMemberName] string memberName = "",
                                 [CallerFilePath] string sourceFilePath = "",
                                 [CallerLineNumber] int sourceLineNumber = 0)
-                => (logger ?? DefaultLogger).Log(LogLevel.Warning, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, null);
+                => (logger ?? DefaultLogger).Log(LogLevel.Warning, new EventId(sourceLineNumber, GetEventName(sourceFilePath, memberName)), messageOrObject, exception, DefaultFormatter);
 
         /// <summary>
         /// 将通过 <see cref="Trace"/> 记录的内容转发到日志
@@ -140,8 +213,6 @@ namespace blqw.Logging
         /// <summary>
         /// 获取日志服务
         /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <returns></returns>
         public static ILogger GetLogger(this IServiceProvider serviceProvider, string categoryName)
         {
             if (serviceProvider?.GetService(typeof(ILoggerFactory)) is ILoggerFactory factory)
@@ -155,16 +226,12 @@ namespace blqw.Logging
         /// <summary>
         /// 获取日志服务
         /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <returns></returns>
         public static ILogger GetLogger(this IServiceProvider serviceProvider, Type type) =>
             serviceProvider.GetLogger(TypeNameHelper.GetTypeDisplayName(type));
 
         /// <summary>
         /// 获取日志服务
         /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <returns></returns>
         public static ILogger GetLogger<T>(this IServiceProvider serviceProvider) =>
             serviceProvider.GetLogger(TypeNameHelper.GetTypeDisplayName(typeof(T)));
 

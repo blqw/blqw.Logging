@@ -1,5 +1,5 @@
 ﻿# blqw.Logging
-日志框架(`Microsoft.Extensions.Logging`)拓展功能
+日志框架([`Microsoft.Extensions.Logging`](https://www.baidu.com/s?ie=UTF-8&wd=Microsoft.Extensions.Logging))拓展功能
 
 ## Demo
 ```
