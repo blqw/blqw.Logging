@@ -48,11 +48,11 @@ namespace blqw.Logging
             var e = GetString(eventId);
             if (formatter != null)
             {
-                Writer.WriteLine($"{Time} {GetString(logLevel)}{GetIndent()} {formatter(state, exception)}{e}");
+                Writer.WriteLine($"{Time} {GetString(logLevel)}{GetIndent()} {e} {formatter(state, exception)}");
             }
             else
             {
-                Writer.WriteLine($"{Time} {GetString(logLevel)}{GetIndent()} {GetString(state)}{e}");
+                Writer.WriteLine($"{Time} {GetString(logLevel)}{GetIndent()} {e} {GetString(state)}");
                 //循环输出异常
                 while (exception != null)
                 {
@@ -73,6 +73,17 @@ namespace blqw.Logging
                 }
             }
             Writer.Flush();
+        }
+
+        static readonly char[] _separator = new[] { '\n', '\r' };
+        private string Indent(string message)
+        {
+            var arr = message.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+            if (arr.Length <= 1)
+            {
+                return message;
+            }
+            return string.Join(Environment.NewLine + "                        " + GetIndent(), arr);
         }
 
         public virtual IDisposable BeginScope<TState>(TState state)
@@ -174,11 +185,11 @@ namespace blqw.Logging
         {
             if (eventId.Id == 0)
             {
-                return $" ({eventId.Name ?? CategoryName ?? "<unknown>"})";
+                return $"<{eventId.Name ?? CategoryName ?? "{unknown}"}>";
             }
             else
             {
-                return $" ({eventId.Name ?? CategoryName ?? "<unknown>"}:{eventId.Id})";
+                return $"<{eventId.Name ?? CategoryName ?? "{unknown}"}:{eventId.Id}>";
             }
         }
 

@@ -13,17 +13,22 @@ namespace Demo
             var provider = new ServiceCollection()
                                 .AddLogging(x => x.SetMinimumLevel(0))
                                 .BuildServiceProvider();
+            provider.TraceListenerToLogger();
+            provider.AddConsoleLogger();
 
-            provider.ConfigLogger(x =>
-            {
-                x.AddConsole(0);
-                x.AddDebug(0);
-            });
 
-            var logger = provider.GetLogger<Program>();
-
+            var logger = provider.GetLogger();
+            Trace.WriteLine("trace test");
             logger.Debug("debug test");
-            logger.Error(new Exception("测试错误"), "error test");
+            try
+            {
+                var i = 0;
+                i = i / i;
+            }
+            catch (Exception e)
+            {
+                logger.Error(new Exception("测试错误", e), "error test");
+            }
         }
     }
 }

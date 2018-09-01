@@ -9,8 +9,10 @@ namespace blqw.Logging
 
         public ILogger Logger { get; }
 
-        public override void Write(string message) => Logger.Log(LogLevel.Trace, 0, message, null, null);
+        public override void Write(string message) =>
+            Logger.Log(LogLevel.Trace, new EventId(0, "Trace.Write"), message, null, (a, b) => a);
 
-        public override void WriteLine(string message) => Logger.Log(LogLevel.Trace, 0, message, null, null);
+        public override void WriteLine(string message) =>
+            Logger.Log(LogLevel.Trace, new EventId(0, "Trace.WriteLine"), message, null, (a, b) => a);
     }
 }
