@@ -4,7 +4,7 @@
     <PackageId>blqw.Logging</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>blqw.Logging</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>blqw</Authors>
     <Description>日志框架拓展功能</Description>
     <Copyright>blqw Copyright 2019</Copyright>
@@ -15,7 +15,8 @@
     <PackageTags>blqw Log Logger Logging</PackageTags>
     <Platforms>AnyCPU</Platforms>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageReleaseNotes>v1.0.0 [2018.08.27] 初始版本</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.0.1 [2018.09.01] 调整代码
+v1.0.0 [2018.08.27] 初始版本</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
